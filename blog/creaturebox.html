@@ -16,10 +16,10 @@
 <html lang="en">
 <body>
 <div class="header">
-<p><a href="/">BenTheElder</a></p>
+<a href="/">BenTheElder</a>
 </div>
 <div class="nav-box card">
-<p><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/about.html">About</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a></p>
+<a href="/">Home</a><a href="/projects.html">Projects</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a>
 </div>
 <div class="card blog-content">
 <p class="title">
@@ -33,9 +33,9 @@ CreatureBox: An obstacle avoidance evolutionary simulation - Jan. 2, 2016
 <h4 id="the-simulation">The Simulation</h4>
 <p>The next thing I did was layout the project structure, divided into the application layer, the simulation, and the simulation further divided into the simulation logic and the &quot;Brain&quot; logic.</p>
 <p>The simulation uses <a href="https://github.com/llgcode">llgcode</a>'s awesome <a href="https://github.com/llgcode/draw2d">draw2d</a> package to draw each frame to a fixed size canvas in order to simplify a number of things. In particular this allowed me to detect collisions and perform raycasts by traversing the canvas's pixels after drawing the background, walls, and obstacles. Any location with a non-background colored pixel is then obviously a wall or an obstacle, and in this case I intended to treat them the same, so this is allowed me to cheaply and easily implement &quot;killing&quot; creatures that touch a wall or a moving obstacle.</p>
-<h5 id="brains">• &quot;Brains&quot;</h5>
+<h4 id="brains">&quot;Brains&quot;</h4>
 <p>I then implemented the &quot;brains&quot; for the creatures, mimicing the design described in the studio otoro blog post. Each creature has a fully connected two layer (input and output) neural network. Most of the outputs are recurrent like the studio otoro demo. Each creature receives a number of &quot;distance to edge or obstacle&quot; inputs in evenly distributed directions about them as well as the previous output for the recurrent nodes, and produces a turn and move output used for turning left/right and moving forward/backwards every frame. These are then scaled, and applied. You can see which way a creature is facing by the white dot drawn on them towards their current &quot;forward&quot; direction.</p>
-<h5 id="evolution">• Evolution</h5>
+<h4 id="evolution">Evolution</h4>
 <p>Lastly I implemented the key component (evolution) by adding logic to track the number of frames each creature has been &quot;alive&quot; for, storing the weights of the best creatures. I also performed a finalpass over the logic to optimize things a little bit (mainly minimizing un-neccessary allocations).<br />
 <br />
 Every n-th frame a number of new creatures are spawned, some of which have brain patterns cloned from the all time best creatures so far, some with a combination of two of the best, and some purely random. Eventually creatures better at staying alive will become more common but there will always be purely random creatures. Creatures do not &quot;breed&quot; or &quot;grow&quot; like the studio otoro demo, but they do have a &quot;frames alive&quot; score used to determine which brain patterns perform best, and the best are spontaneously reproduced each cycle.<br />

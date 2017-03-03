@@ -9,12 +9,11 @@ header-includes:
 <!DOCTYPE html>
 <html lang="en">
 <body>
-<div class="header">
-<a href="/">BenTheElder</a>
-</div>
-<div class="nav-box card">
-<a href="/">Home</a><a href="/projects.html">Projects</a><a href="/about.html">About</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a>
-</div>
+
+<div class="header"><a href="/">BenTheElder</a></div>
+
+<div class="nav-box card"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a></div>
+
 <div class="card blog-content">
 <p class="title">Rust Hotswap - Jan. 12, 2015</p>
 
@@ -97,7 +96,7 @@ We could possibly recreate this hash, or we could just look for a dynamic librar
 executable. To do this we use `std::os::self_exe_path` to get the directory the executable is in,
 then use it to create a search pattern for `glob` to find the dynamic library we built.
 
-We have a small helper function `get_dylib_path_pattern` that appends a platform specific file extension using rust's `cfg` conditional compilation and `target_os`.
+We have a small helper function `get_dylib_path_pattern` that appends a platform specific file extension using rust's `cfg` conditional compilation and `target_os`.  
 After finding the library we can then use the (unstable!) `std::dynamic_lib::DynamicLibrary` api to load the library, and resolve the symbol for `do_tick`, which we can then call.
 
 We'll wrap up the loading and calling bits in a helper function.
@@ -133,7 +132,7 @@ use std::mem::transmute;
 #[cfg(any(target_os = "linux",
           target_os = "freebsd",
           target_os = "dragonfly"))]
-fn get_dylib_path_pattern(dir: &str) -> String{
+fn get_dylib_path_pattern(dir: &str) -> String {
     dir.to_string() + "/*.so"
 }
 

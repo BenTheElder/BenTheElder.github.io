@@ -9,12 +9,14 @@ header-includes:
 <!DOCTYPE html>
 <html lang="en">
 <body>
-<div class="header">
-<a href="/">BenTheElder</a>
-</div>
-<div class="nav-box card">
-<a href="/">Home</a><a href="/projects.html">Projects</a><a href="/about.html">About</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a>
-</div>
+
+
+<div class="header"><a href="/">BenTheElder</a></div>
+
+
+<div class="nav-box card"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a></div>
+
+
 <div class="card blog-content">
 <p class="title">CreatureBox: An obstacle avoidance evolutionary simulation - Jan. 2, 2016</p>
 
@@ -55,7 +57,7 @@ The simulation uses <a href="https://github.com/llgcode">llgcode</a>'s awesome [
  touch a wall or a moving obstacle.
 
 
-##### • "Brains"
+#### "Brains"
 I then implemented the "brains" for the creatures, mimicing the design described in the studio otoro blog post.
 Each creature has a fully connected two layer (input and output) neural network. Most of the outputs are recurrent like
  the studio otoro demo. Each creature receives a number of "distance to edge or obstacle" inputs in
@@ -63,7 +65,7 @@ Each creature has a fully connected two layer (input and output) neural network.
  and move output used for turning left/right and moving forward/backwards every frame. These are then scaled, and applied.
  You can see which way a creature is facing by the white dot drawn on them towards their current "forward" direction.
 
-##### • Evolution
+#### Evolution
 Lastly I implemented the key component (evolution) by adding logic to track the number of frames each creature has been
  "alive" for, storing the weights of the best creatures. I also performed a finalpass over the logic to optimize things
  a little bit (mainly minimizing un-neccessary allocations).\

@@ -53,10 +53,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <html lang="en">
 <body>
 <div class="header">
-<p><a href="/">BenTheElder</a></p>
+<a href="/">BenTheElder</a>
 </div>
 <div class="nav-box card">
-<p><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/about.html">About</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a></p>
+<a href="/">Home</a><a href="/projects.html">Projects</a><a href="/resume.html">Resume</a><a href="/blog.html" class="current">Blog</a>
 </div>
 <div class="card blog-content">
 <p class="title">
@@ -93,7 +93,7 @@ glob = &quot;*&quot;</code></pre>
 <span class="kw">use</span> std::fmt;
 
 <span class="at">#[</span>no_mangle<span class="at">]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="st">&quot;C&quot;</span> <span class="kw">fn</span> do_tick(num: <span class="dt">i32</span>) {
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="st">&quot;C&quot;</span> <span class="kw">fn</span> do_tick(num: <span class="dt">i32</span>) <span class="op">{</span>
     <span class="kw">let</span> <span class="kw">mut</span> out = io::stdout();
 
     <span class="kw">let</span> s = <span class="pp">format!</span>(<span class="st">&quot;Tick: {}&quot;</span>, num);
@@ -101,12 +101,13 @@ glob = &quot;*&quot;</code></pre>
     out.write_char(<span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span>);
 
     out.flush();
-}</code></pre></div>
+<span class="op">}</span></code></pre></div>
 <p><br />
 We use <code>#[no_mangle]</code> to prevent rust from mangling the function name, and <code>extern &quot;C&quot;</code> to export it in the C linkage style. We use <code>io::stdout()</code> to get a handle to stdout instead of using the <code>println!</code> macro because the macro causes an illegal instruction error on exit. I'm not sure exactly why this occurs but i'm sure it has to do with unsafely sharing the stdout handle. It's probably a good idea to do it this way anyhow, but I might want to look into that later.</p>
 <p>Now to actually load the library.</p>
 <p>The first important thing to know is that rustc appends a versioning hash to libraries it produces. We could possibly recreate this hash, or we could just look for a dynamic library next to the executable. To do this we use <code>std::os::self_exe_path</code> to get the directory the executable is in, then use it to create a search pattern for <code>glob</code> to find the dynamic library we built.</p>
-<p>We have a small helper function <code>get_dylib_path_pattern</code> that appends a platform specific file extension using rust's <code>cfg</code> conditional compilation and <code>target_os</code>. After finding the library we can then use the (unstable!) <code>std::dynamic_lib::DynamicLibrary</code> api to load the library, and resolve the symbol for <code>do_tick</code>, which we can then call.</p>
+<p>We have a small helper function <code>get_dylib_path_pattern</code> that appends a platform specific file extension using rust's <code>cfg</code> conditional compilation and <code>target_os</code>.<br />
+After finding the library we can then use the (unstable!) <code>std::dynamic_lib::DynamicLibrary</code> api to load the library, and resolve the symbol for <code>do_tick</code>, which we can then call.</p>
 <p>We'll wrap up the loading and calling bits in a helper function.</p>
 <p>Lastly we can throw in a <code>println!</code> and a keypress read between <code>ticks</code> to puase the program, and alert the user that it is now safe to modify the code. This allows you to finally do the following:</p>
 <ol style="list-style-type: decimal">
@@ -131,41 +132,41 @@ We use <code>#[no_mangle]</code> to prevent rust from mangling the function name
 <span class="at">#[</span>cfg<span class="at">(</span>any<span class="at">(</span>target_os <span class="at">=</span> <span class="st">&quot;linux&quot;</span><span class="at">,</span>
           target_os <span class="at">=</span> <span class="st">&quot;freebsd&quot;</span><span class="at">,</span>
           target_os <span class="at">=</span> <span class="st">&quot;dragonfly&quot;</span><span class="at">))]</span>
-<span class="kw">fn</span> get_dylib_path_pattern(dir: &amp;<span class="dt">str</span>) -&gt; <span class="dt">String</span>{
+<span class="kw">fn</span> get_dylib_path_pattern(dir: &amp;<span class="dt">str</span>) -&gt; <span class="dt">String</span> <span class="op">{</span>
     dir.to_string() + <span class="st">&quot;/*.so&quot;</span>
-}
+<span class="op">}</span>
 
 <span class="at">#[</span>cfg<span class="at">(</span>target_os <span class="at">=</span> <span class="st">&quot;macos&quot;</span><span class="at">)]</span>
-<span class="kw">fn</span> get_dylib_path_pattern(dir: &amp;<span class="dt">str</span>) -&gt; <span class="dt">String</span> {
+<span class="kw">fn</span> get_dylib_path_pattern(dir: &amp;<span class="dt">str</span>) -&gt; <span class="dt">String</span> <span class="op">{</span>
     dir.to_string() + <span class="st">&quot;/*.dylib&quot;</span>
-}
+<span class="op">}</span>
 
 <span class="at">#[</span>cfg<span class="at">(</span>target_os <span class="at">=</span> <span class="st">&quot;windows&quot;</span><span class="at">)]</span>
-<span class="kw">fn</span> get_dylib_path_pattern(dir: &amp;<span class="dt">str</span>) -&gt; <span class="dt">String</span> {
+<span class="kw">fn</span> get_dylib_path_pattern(dir: &amp;<span class="dt">str</span>) -&gt; <span class="dt">String</span> <span class="op">{</span>
     dir.to_string() + <span class="st">&quot;/*.dll&quot;</span>
-}
+<span class="op">}</span>
 
-<span class="kw">fn</span> do_lib_tick(dylib_path_pattern: &amp;<span class="dt">str</span>, num: <span class="dt">i32</span>) {
+<span class="kw">fn</span> do_lib_tick(dylib_path_pattern: &amp;<span class="dt">str</span>, num: <span class="dt">i32</span>) <span class="op">{</span>
     <span class="kw">let</span> <span class="kw">mut</span> paths = glob(dylib_path_pattern);
 
     <span class="kw">let</span> path = paths.next().unwrap();
     <span class="pp">println!</span>(<span class="st">&quot;path: {}&quot;</span>, path.display());
 
-    <span class="kw">let</span> lib = <span class="kw">match</span> DynamicLibrary::open(<span class="cn">Some</span>(&amp;path)) {
+    <span class="kw">let</span> lib = <span class="kw">match</span> DynamicLibrary::open(<span class="cn">Some</span>(&amp;path)) <span class="op">{</span>
         <span class="cn">Ok</span>(lib) =&gt; lib,
         <span class="cn">Err</span>(e) =&gt; <span class="pp">panic!</span>(<span class="st">&quot;Failed to load library: {:?}&quot;</span>, e)
-    };
+    <span class="op">}</span>;
 
-    <span class="kw">let</span> do_tick: <span class="kw">extern</span> <span class="st">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="dt">i32</span>) = <span class="kw">unsafe</span> {
-        <span class="kw">match</span> lib.symbol::&lt;<span class="dt">u8</span>&gt;(<span class="st">&quot;do_tick&quot;</span>) {
+    <span class="kw">let</span> do_tick: <span class="kw">extern</span> <span class="st">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="dt">i32</span>) = <span class="kw">unsafe</span> <span class="op">{</span>
+        <span class="kw">match</span> lib.symbol::&lt;<span class="dt">u8</span>&gt;(<span class="st">&quot;do_tick&quot;</span>) <span class="op">{</span>
             <span class="cn">Ok</span>(do_tick) =&gt; transmute::&lt;*<span class="kw">mut</span> <span class="dt">u8</span>, <span class="kw">extern</span> <span class="st">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="dt">i32</span>)&gt;(do_tick),
             <span class="cn">Err</span>(e) =&gt; <span class="pp">panic!</span>(<span class="st">&quot;Failed to load symbol: {:?}&quot;</span>, e)
-        }
-    };
+        <span class="op">}</span>
+    <span class="op">}</span>;
     do_tick(num);
-}
+<span class="op">}</span>
 
-<span class="kw">fn</span> main() {
+<span class="kw">fn</span> main() <span class="op">{</span>
     <span class="kw">let</span> dir = self_exe_path().unwrap();
     <span class="pp">println!</span>(<span class="st">&quot;dir: {:?}&quot;</span>, dir);
 
@@ -180,7 +181,7 @@ We use <code>#[no_mangle]</code> to prevent rust from mangling the function name
 
 
     do_lib_mn(dylib_path_pattern.as_slice(), <span class="dv">2</span>);
-}</code></pre></div>
+<span class="op">}</span></code></pre></div>
 <p><br />
 <em>Cargo.toml</em></p>
 <pre class="toml"><code>[package]
